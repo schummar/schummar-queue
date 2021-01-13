@@ -13,7 +13,7 @@ export type QueueEntry<T> = {
   reject(reason?: any): void;
 } & QueueOptions;
 
-export default class Queue {
+export class Queue {
   private queue: QueueEntry<any>[] = [];
   last?: Promise<any>;
   private workers = 0;

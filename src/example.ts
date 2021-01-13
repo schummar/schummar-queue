@@ -1,4 +1,4 @@
-import Queue from './queue';
+import { Queue } from './queue';
 import { sleep } from './sleep';
 
 const queue = new Queue({ parallel: 5 });

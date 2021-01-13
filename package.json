@@ -1,0 +1,34 @@
+{
+  "name": "schummar-queue",
+  "repository": "schummar/schummar-queue",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "scripts": {
+    "start": "run-p start:*",
+    "start:compile": "tsc --watch",
+    "start:example": "npm --prefix example start",
+    "example": "ts-node-dev --respawn src/example.ts",
+    "build": "run-s build:*",
+    "build:clean": "rimraf dist/**",
+    "build:compile": "tsc",
+    "lint": "run-p lint:*",
+    "lint:eslint": "eslint src",
+    "lint:tsc": "tsc --noEmit",
+    "prepublishOnly": "run-s lint build"
+  },
+  "devDependencies": {
+    "@types/node": "^14.14.20",
+    "@typescript-eslint/eslint-plugin": "^4.10.0",
+    "@typescript-eslint/parser": "^4.10.0",
+    "eslint": "^7.15.0",
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.2.1",
+    "rimraf": "^3.0.2",
+    "ts-node-dev": "^1.1.1",
+    "typescript": "^4.1.3"
+  }
+}

@@ -1,34 +1,48 @@
 {
   "name": "schummar-queue",
   "repository": "schummar/schummar-queue",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "",
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
+  "type": "module",
+  "sideEffects": false,
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "exports": {
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.js"
+  },
+  "author": {
+    "name": "Marco Schumacher",
+    "email": "marco@schumacher.dev"
+  },
   "license": "ISC",
   "scripts": {
-    "start": "run-p start:*",
-    "start:compile": "tsc --watch",
-    "start:example": "npm --prefix example start",
-    "example": "ts-node-dev --respawn src/example.ts",
-    "build": "run-s build:*",
+    "start": "tsc --watch",
+    "build": "npm-run-all -s build:clean -p build:compile:*",
     "build:clean": "rimraf dist/**",
-    "build:compile": "tsc",
+    "build:compile:esm": "tsc",
+    "build:compile:cjs": "tsc -p tsconfig-cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
     "lint": "run-p lint:*",
     "lint:eslint": "eslint src",
     "lint:tsc": "tsc --noEmit",
-    "prepublishOnly": "run-s lint build"
+    "prepublishOnly": "run-s lint build",
+    "test": "cd test && ava",
+    "test-watch": "cd test && ava --watch",
+    "coverage": "nyc --include src --all npm run test"
   },
   "devDependencies": {
-    "@types/node": "^14.14.20",
-    "@typescript-eslint/eslint-plugin": "^4.10.0",
-    "@typescript-eslint/parser": "^4.10.0",
-    "eslint": "^7.15.0",
+    "@types/node": "^15.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.23.0",
+    "@typescript-eslint/parser": "^4.23.0",
+    "ava": "^3.15.0",
+    "eslint": "^7.26.0",
     "npm-run-all": "^4.1.5",
-    "prettier": "^2.2.1",
+    "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
-    "ts-node-dev": "^1.1.1",
-    "typescript": "^4.1.3"
-  }
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "files": [
+    "dist"
+  ]
 }

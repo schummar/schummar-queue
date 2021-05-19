@@ -14,15 +14,15 @@ test('queue', async (t) => {
       .schedule(
         async () => {
           running++;
-          t.is(running, (i % 5) + 1, `i=${i} ${running}`);
+          t.assert(running <= 5);
           await sleep(10);
           running--;
           return i;
-        }
-        // { priority: i === 9 ? 0 : 1 }
+        },
+        { priority: i === 9 ? 0 : 1 }
       )
       .then((result) => t.is(result, i));
   }
 
-  await queue.last;
+  await queue.untilEmpty;
 });

@@ -1,6 +1,13 @@
 import { sleep } from './sleep';
 
 export interface QueueOptions {
+  parallel: number;
+  retries: number;
+  delay: number;
+  backoff: boolean;
+}
+
+export interface ScheduleOptions {
   retries: number;
   delay: number;
   backoff: boolean;
@@ -8,27 +15,49 @@ export interface QueueOptions {
 }
 
 export type QueueEntry<T> = {
-  action(options: QueueOptions): T;
+  action(options: ScheduleOptions): T;
   resolve(value?: T | PromiseLike<T> | undefined): void;
   reject(reason?: any): void;
-} & QueueOptions;
+} & ScheduleOptions;
 
 export class Queue {
+  untilEmpty?: Promise<void>;
+  private resolveUntilEmpty?: () => void;
   private queue: QueueEntry<any>[] = [];
-  last?: Promise<any>;
   private workers = 0;
   private lock = 0;
-  private parallel: number;
+  private options: QueueOptions;
 
-  constructor({ parallel = 1 } = {}) {
-    this.parallel = parallel;
+  constructor(options: Partial<QueueOptions> = {}) {
+    this.options = {
+      parallel: 1,
+      retries: 0,
+      delay: 0,
+      backoff: false,
+      ...options,
+    };
+  }
+
+  private checkUntilEmpty() {
+    if (!this.resolveUntilEmpty && this.size > 0) {
+      this.untilEmpty = new Promise((r) => (this.resolveUntilEmpty = r));
+    } else if (this.resolveUntilEmpty && this.size === 0) {
+      this.resolveUntilEmpty();
+      delete this.untilEmpty;
+      delete this.resolveUntilEmpty;
+    }
   }
 
   schedule<T>(
-    action: (options: QueueOptions) => T | PromiseLike<T>,
-    { retries = 0, delay = 0, backoff = false, priority = Infinity }: Partial<QueueOptions> = {}
+    action: (options: ScheduleOptions) => T | PromiseLike<T>,
+    {
+      retries = this.options.retries,
+      delay = this.options.delay,
+      backoff = this.options.backoff,
+      priority = Infinity,
+    }: Partial<ScheduleOptions> = {}
   ): Promise<T> {
-    return (this.last = new Promise<T>((resolve, reject) => {
+    return new Promise<T>((resolve, reject) => {
       const entry = { action, resolve, reject, retries, delay, backoff, priority };
       if (priority === Infinity) this.queue.push(entry);
       else {
@@ -37,12 +66,13 @@ export class Queue {
         else this.queue.push(entry);
       }
 
+      this.checkUntilEmpty();
       this._startWorker();
-    }));
+    });
   }
 
   private async _startWorker() {
-    if (this.workers < this.parallel) {
+    if (this.workers < this.options.parallel) {
       this.workers++;
       setImmediate(() => this._worker());
     }
@@ -81,6 +111,7 @@ export class Queue {
       this.lock--;
       if (Number(new Date()) - Number(start) < 10) this._worker(start);
       else setImmediate(() => this._worker());
+      this.checkUntilEmpty();
     }
   }
 
@@ -94,11 +125,17 @@ export class Queue {
       else item.reject(Object.assign(Error('Canceled'), { canceled: true }));
     }
     this.queue = [];
+    this.checkUntilEmpty();
   }
 
   async replace<T>(
-    action: (options: QueueOptions) => T,
-    { retries = 0, delay = 0, backoff = false, priority = Infinity }: Partial<QueueOptions> = {}
+    action: (options: ScheduleOptions) => T,
+    {
+      retries = this.options.retries,
+      delay = this.options.delay,
+      backoff = this.options.backoff,
+      priority = Infinity,
+    }: Partial<ScheduleOptions> = {}
   ): Promise<T> {
     const queue = this.queue;
     this.queue = [];

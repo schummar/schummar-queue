@@ -74,7 +74,7 @@ export class Queue {
   private async _startWorker() {
     if (this.workers < this.options.parallel) {
       this.workers++;
-      setImmediate(() => this._worker());
+      setTimeout(() => this._worker());
     }
   }
 
@@ -110,7 +110,7 @@ export class Queue {
     } finally {
       this.lock--;
       if (Number(new Date()) - Number(start) < 10) this._worker(start);
-      else setImmediate(() => this._worker());
+      else setTimeout(() => this._worker());
       this.checkUntilEmpty();
     }
   }

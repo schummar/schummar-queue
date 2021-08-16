@@ -28,14 +28,8 @@ export class Queue {
   private lock = 0;
   private options: QueueOptions;
 
-  constructor(options: Partial<QueueOptions> = {}) {
-    this.options = {
-      parallel: 1,
-      retries: 0,
-      delay: 0,
-      backoff: false,
-      ...options,
-    };
+  constructor({ parallel = 1, retries = 0, delay = 0, backoff = false }: Partial<QueueOptions> = {}) {
+    this.options = { parallel, retries, delay, backoff };
   }
 
   private checkUntilEmpty() {

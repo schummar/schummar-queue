@@ -1,7 +1,7 @@
 {
   "name": "schummar-queue",
   "repository": "schummar/schummar-queue",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "description": "",
   "type": "module",
   "sideEffects": false,

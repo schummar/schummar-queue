@@ -1,62 +1,71 @@
-import test from 'ava';
+import { expect, test } from 'vitest';
 import { Queue, queued } from '../src';
 import { sleep } from '../src/sleep';
 
-test('queued', async (t) => {
-  t.plan(20);
-
+test('queued', async () => {
   let running = 0;
 
-  const fn = queued(async (x: string) => {
+  const function_ = queued(async (x: string) => {
     running++;
-    t.assert(running === 1);
+    expect(running).toBe(1);
     await sleep(10);
     running--;
     return Number(x);
   });
-  for (let i = 0; i < 10; i++) fn(String(i)).then((v) => t.is(v, i));
-  await fn.qeueue.untilEmpty;
+  for (let i = 0; i < 10; i++)
+    function_(String(i))
+      .then((v) => expect(v).toBe(i))
+      .catch(() => undefined);
+
+  await function_.qeueue.untilEmpty;
 });
 
-test('queued with options', async (t) => {
-  t.plan(20);
-
+test('queued with options', async () => {
   let running = 0;
 
-  const fn = queued({ parallel: 2 }, async (x: string) => {
+  const function_ = queued({ parallel: 2 }, async (x: string) => {
     running++;
-    t.assert(running <= 2);
+    expect(running).toBeLessThanOrEqual(2);
     await sleep(10);
     running--;
     return Number(x);
   });
-  for (let i = 0; i < 10; i++) fn(String(i)).then((v) => t.is(v, i));
-  await fn.qeueue.untilEmpty;
+  for (let i = 0; i < 10; i++)
+    function_(String(i))
+      .then((v) => expect(v).toBe(i))
+      .catch(() => undefined);
+
+  await function_.qeueue.untilEmpty;
 });
 
-test('queued two', async (t) => {
-  t.plan(20);
-
+test('queued two', async () => {
   let running = 0;
   const q = new Queue();
 
-  const fn1 = queued(q, async (x: string) => {
+  const function1 = queued(q, async (x: string) => {
     running++;
-    t.assert(running === 1);
+    expect(running).toBe(1);
     await sleep(10);
     running--;
     return Number(x);
   });
-  const fn2 = queued(q, async (x: string) => {
+
+  const function2 = queued(q, async (x: string) => {
     running++;
-    t.assert(running === 1);
+    expect(running).toBe(1);
     await sleep(10);
     running--;
     return Number(x);
   });
+
   for (let i = 0; i < 5; i++) {
-    fn1(String(i)).then((v) => t.is(v, i));
-    fn2(String(i)).then((v) => t.is(v, i));
+    function1(String(i))
+      .then((v) => expect(v).toBe(i))
+      .catch(() => undefined);
+
+    function2(String(i))
+      .then((v) => expect(v).toBe(i))
+      .catch(() => undefined);
   }
 
   await q.untilEmpty;

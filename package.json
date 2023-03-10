@@ -1,48 +1,58 @@
 {
   "name": "schummar-queue",
-  "repository": "schummar/schummar-queue",
   "version": "0.1.0",
   "description": "",
-  "type": "module",
-  "sideEffects": false,
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "exports": {
-    "import": "./dist/esm/index.js",
-    "require": "./dist/cjs/index.js"
-  },
+  "license": "ISC",
+  "repository": "schummar/schummar-queue",
   "author": {
     "name": "Marco Schumacher",
     "email": "marco@schumacher.dev"
   },
-  "license": "ISC",
-  "scripts": {
-    "start": "tsc --watch",
-    "build": "npm-run-all -s build:clean -p build:compile:*",
-    "build:clean": "rimraf dist/**",
-    "build:compile:esm": "tsc",
-    "build:compile:cjs": "tsc -p tsconfig-cjs.json && echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json",
-    "lint": "run-p lint:*",
-    "lint:eslint": "eslint src",
-    "lint:tsc": "tsc --noEmit",
-    "prepublishOnly": "run-s lint build",
-    "test": "cd test && ava",
-    "test-watch": "cd test && ava --watch",
-    "coverage": "nyc --include src --all npm run test"
-  },
-  "devDependencies": {
-    "@types/node": "^15.0.2",
-    "@typescript-eslint/eslint-plugin": "^4.23.0",
-    "@typescript-eslint/parser": "^4.23.0",
-    "ava": "^3.15.0",
-    "eslint": "^7.26.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^2.3.0",
-    "rimraf": "^3.0.2",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.4"
-  },
+  "type": "module",
+  "sideEffects": false,
   "files": [
     "dist"
-  ]
+  ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/index.js",
+    "require": "./dist/index.cjs"
+  },
+  "scripts": {
+    "build": "runp -k build:clean :p build:compile:*",
+    "build:clean": "rimraf dist",
+    "build:compile:js": "vite build",
+    "build:compile:types": "tsc --emitDeclarationOnly",
+    "lint": "runp lint:*",
+    "lint:eslint": "lint",
+    "lint:types": "tsc --noEmit -p . -p test",
+    "prepublishOnly": "runp lint test build :s publint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@schummar/eslint-config": "github:schummar/eslint-config",
+    "@schummar/prettier-config": "github:schummar/prettier-config",
+    "@schummar/runp": "^1.10.0",
+    "@types/node": "^18.15.0",
+    "@vitest/coverage-c8": "^0.29.2",
+    "eslint": "^8.35.0",
+    "prettier": "^2.8.4",
+    "publint": "^0.1.10",
+    "rimraf": "^4.4.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4",
+    "vitest": "^0.29.2"
+  },
+  "eslintConfig": {
+    "extends": "@schummar/eslint-config"
+  },
+  "prettier": "@schummar/prettier-config",
+  "volta": {
+    "node": "18.15.0",
+    "pnpm": "7.29.1"
+  }
 }

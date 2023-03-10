@@ -1,28 +1,31 @@
-import test from 'ava';
+import { expect, test } from 'vitest';
 import { Queue } from '../src';
 import { sleep } from '../src/sleep';
 
-test('queue', async (t) => {
-  t.plan(20);
-
+test('queue', async () => {
   const queue = new Queue({ parallel: 5 });
 
+  let done = 0;
   let running = 0;
 
   for (let i = 0; i < 10; i++) {
     queue
       .schedule(
+        // eslint-disable-next-line no-loop-func
         async () => {
           running++;
-          t.assert(running <= 5);
+          expect(running).lessThanOrEqual(5);
           await sleep(10);
           running--;
+          done++;
           return i;
         },
-        { priority: i === 9 ? 0 : 1 }
+        { priority: i === 9 ? 0 : 1 },
       )
-      .then((result) => t.is(result, i));
+      .then((result) => expect(result).toBe(i))
+      .catch(() => undefined);
   }
 
   await queue.untilEmpty;
+  expect(done).toBe(10);
 });

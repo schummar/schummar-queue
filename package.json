@@ -31,7 +31,8 @@
     "prepublishOnly": "runp lint test build :s publint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:export": "vitest run --coverage --reporter=junit --outputFile=test/results.xml"
   },
   "devDependencies": {
     "@schummar/eslint-config": "github:schummar/eslint-config",

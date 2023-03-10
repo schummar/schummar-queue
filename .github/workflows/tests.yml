@@ -2,9 +2,9 @@ name: Tests
 
 on:
   push:
-    branches: [master, feature/overhaul]
+    branches: [master, next]
   pull_request:
-    branches: [master]
+    branches: [master, next]
 
 jobs:
   test:
@@ -28,13 +28,12 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         run: pnpm i --frozen-lockfile
-      - run: npm ci
       - run: npm run test:export
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action@v1
         if: always()
         with:
-          files: test/testResults.xml
+          files: test/results.xml
 
   lint:
     runs-on: ubuntu-latest

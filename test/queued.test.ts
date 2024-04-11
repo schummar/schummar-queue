@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { Queue, queued } from '../src';
+import { createQueue, queued } from '../src';
 import { sleep } from '../src/sleep';
 
 test('queued', async () => {
@@ -17,7 +17,7 @@ test('queued', async () => {
       .then((v) => expect(v).toBe(i))
       .catch(() => undefined);
 
-  await function_.qeueue.untilEmpty;
+  await function_.qeueue.whenEmpty();
 });
 
 test('queued with options', async () => {
@@ -35,12 +35,12 @@ test('queued with options', async () => {
       .then((v) => expect(v).toBe(i))
       .catch(() => undefined);
 
-  await function_.qeueue.untilEmpty;
+  await function_.qeueue.whenEmpty();
 });
 
 test('queued two', async () => {
   let running = 0;
-  const q = new Queue();
+  const q = createQueue();
 
   const function1 = queued(q, async (x: string) => {
     running++;
@@ -68,5 +68,5 @@ test('queued two', async () => {
       .catch(() => undefined);
   }
 
-  await q.untilEmpty;
+  await q.whenEmpty();
 });

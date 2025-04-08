@@ -20,6 +20,25 @@ test('queued', async () => {
   await function_.qeueue.whenEmpty();
 });
 
+test('q.queued', async () => {
+  let running = 0;
+  const q = createQueue();
+
+  const function_ = q.queued(async (x: string) => {
+    running++;
+    expect(running).toBe(1);
+    await sleep(10);
+    running--;
+    return Number(x);
+  });
+  for (let i = 0; i < 10; i++)
+    function_(String(i))
+      .then((v) => expect(v).toBe(i))
+      .catch(() => undefined);
+
+  await q.whenEmpty();
+});
+
 test('queued with options', async () => {
   let running = 0;
 

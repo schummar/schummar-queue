@@ -159,6 +159,15 @@ export class Queue extends Callable<any> {
       }
     });
   }
+
+  queued<Args extends any[], R>(
+    action: (...args: Args) => R | PromiseLike<R>,
+    options?: Partial<ScheduleOptions>,
+  ): (...args: Args) => Promise<R> {
+    return (...args: Args) => {
+      return this.schedule(() => action(...args), options);
+    };
+  }
 }
 
 export function createQueue(options?: Partial<QueueOptions>): Queue & Queue['schedule'] {

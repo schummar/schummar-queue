@@ -160,13 +160,12 @@ export class Queue extends Callable<any> {
     });
   }
 
-  queued<Args extends any[], R>(
-    action: (...args: Args) => R | PromiseLike<R>,
+  queued<Fn extends (...args: any[]) => any>(
+    fn: Fn,
     options?: Partial<ScheduleOptions>,
-  ): (...args: Args) => Promise<R> {
-    return (...args: Args) => {
-      return this.schedule(() => action(...args), options);
-    };
+  ): ((...args: Parameters<Fn>) => Promise<Awaited<ReturnType<Fn>>>) & { executeDirectly: Fn } {
+    const function_ = (...args: Parameters<Fn>) => this.schedule(() => fn(...args), options);
+    return Object.assign(function_, { executeDirectly: fn });
   }
 }
 
